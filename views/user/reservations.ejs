@@ -1,0 +1,103 @@
+<% layout('/layouts/boilerplate.ejs') %>
+
+<style>
+  .main-search,
+  .main-search-btn {
+    display: none;
+  }
+
+  .reservation-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 20px 0;
+  }
+
+  .reservation-table th, .reservation-table td {
+    padding: 12px;
+    text-align: left;
+    border-bottom: 1px solid #ddd;
+  }
+
+  .reservation-table th {
+    background-color: #f2f2f2;
+    color: #333;
+  }
+
+  .reservation-table tr:hover {
+    background-color: #f5f5f5;
+  }
+
+  .status-confirmed {
+    color: green;
+    font-weight: bold;
+  }
+
+  .status-expired {
+    color: red;
+    font-weight: bold;
+  }
+
+  .reservation-table .guest-name {
+    color: #007bff;
+  }
+</style>
+
+<script>
+  function filterBookings() {
+    const filterValue = document.getElementById('filter-status').value;
+    const rows = document.querySelectorAll('.reservation-table tbody tr');
+    rows.forEach(row => {
+      const status = row.querySelector('.status-confirmed').textContent.trim().toLowerCase();
+      if (filterValue === 'all' || status === filterValue) {
+        row.style.display = '';
+      } else {
+        row.style.display = 'none';
+      }
+    });
+  }
+</script>
+
+<div class="container">
+  <h2 class="mb-4" style="color: #333; margin: auto; font-weight: 700;">Reservations</h2>
+  <label for="filter-status">Filter by Status:&nbsp; </label>
+  <select id="filter-status" onchange="filterBookings()">
+    <option value="all">All</option>
+    <option value="confirmed">Confirmed</option>
+    <option value="expired">Expired</option>
+  </select>
+  
+  <table class="reservation-table mt-4">
+    <thead>
+      <tr>
+        <th>Status</th>
+        <th>Guests</th>
+        <th>Dates</th>
+        <th>Booked</th>
+        <th>Listing</th>
+        <th>Action</th>
+      </tr>
+    </thead>
+    <tbody>
+      <% if (!user.bookings.length) { %>
+        <tr>
+          <td colspan="6">No bookings yet!</td>
+        </tr>
+      <% } else { %>
+        <% user.bookings.forEach(book => { %>
+          <tr>
+            <td class="status-confirmed"><%= book.status %></td>
+            <td class="guest-name"><%= user.username %></td>
+            <td><%= book.checkInDate %>&nbsp; to &nbsp;<%= book.checkOutDate %><br><%= book.nights %> nights</td>
+            <td class="date-now"><%= book.time %></td>
+            <td><a style="text-decoration: none;" href="/listings/<%= book.listing._id %>"><%= book.listing.title %></a></td>
+            <td>
+              <form action="/cancel/<%= book._id %>?_method=DELETE" method="POST">
+                <button type="submit" class="btn btn-danger">Cancel Booking</button>
+              </form>
+            </td>
+          </tr>
+        <% }) %>
+      <% } %>
+    </tbody>
+  </table>
+</div>
