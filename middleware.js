@@ -64,6 +64,3 @@ module.exports.isAuthor = async(req,res,next)=>{
         return res.redirect(`/listings/${id}`);
     }
 }
-
-
-
